@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 const PROJECT_FILE = "app-store-screenshots.json";
 
 function filePath() {
-  return path.join(process.cwd(), PROJECT_FILE);
+  return process.env.PROJECT_STATE_PATH || path.join(process.cwd(), PROJECT_FILE);
 }
 
 const revision = (raw: string | null) => `"${raw === null ? "missing" : createHash("sha256").update(raw).digest("hex")}"`;

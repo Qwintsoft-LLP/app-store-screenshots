@@ -1,0 +1,33 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose:
+      - "${PORT:-3000}"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${PORT:-3000}
+      - HOSTNAME=0.0.0.0
+      - PROJECT_STATE_PATH=${PROJECT_STATE_PATH:-/app/storage/app-store-screenshots.json}
+    volumes:
+      - "${STORAGE_PATH:-/data/coolify/applications/app-store-screenshots}/uploads:/app/public/screenshots/uploaded"
+      - "${STORAGE_PATH:-/data/coolify/applications/app-store-screenshots}/fonts:/app/public/fonts/imported"
+      - "${STORAGE_PATH:-/data/coolify/applications/app-store-screenshots}/storage:/app/storage"
+    networks:
+      - coolify
+    healthcheck:
+      test:
+        - CMD
+        - bun
+        - -e
+        - "fetch('http://127.0.0.1:' + (process.env.PORT || '3000') + '/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  coolify:
+    external: true

@@ -19,7 +19,12 @@ export function rejectCrossSiteWrite(req: Request): GuardFailure | null {
   // Next can canonicalize req.url to localhost even when the browser used
   // 127.0.0.1 or a LAN address. Host is the browser's actual request authority.
   const target = new URL(req.url);
-  target.host = req.headers.get("host") || target.host;
+  const forwardedProto = req.headers.get("x-forwarded-proto");
+  if (forwardedProto) {
+    target.protocol = `${forwardedProto}:`;
+  }
+  const forwardedHost = req.headers.get("x-forwarded-host");
+  target.host = forwardedHost || req.headers.get("host") || target.host;
   if (origin && origin !== target.origin) {
     return { error: "Cross-origin write rejected", status: 403 };
   }
