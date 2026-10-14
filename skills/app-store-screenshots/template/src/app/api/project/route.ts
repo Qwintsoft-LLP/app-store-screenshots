@@ -19,7 +19,7 @@ let writes: Promise<unknown> = Promise.resolve();
 
 export async function GET() {
   try {
-    const raw = await fs.readFile(filePath(), "utf8");
+    const raw = await fs.readFile(/*turbopackIgnore: true*/ filePath(), "utf8");
     const parsed = JSON.parse(raw);
     const validationError = projectValidationError(parsed);
     if (validationError) throw new Error(validationError);
@@ -61,7 +61,7 @@ async function writeProject(body: unknown, expected: string | null) {
   try {
     if (expected !== null) {
       let current: string | null;
-      try { current = await fs.readFile(filePath(), "utf8"); }
+      try { current = await fs.readFile(/*turbopackIgnore: true*/ filePath(), "utf8"); }
       catch (error) {
         if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
         current = null;

@@ -35,6 +35,11 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Install curl and ca-certificates for Coolify healthcheck probes
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
 # Prepare directories for uploads and persistent data
 RUN mkdir -p /app/public/screenshots/uploaded \
              /app/public/fonts/imported \
@@ -52,6 +57,7 @@ COPY --from=builder --chown=bun:bun /app/app-store-screenshots.json ./app-store-
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD bun -e "fetch('http://127.0.0.1:' + (process.env.PORT || 3000) + '/api/health').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"
+  CMD curl -f http://127.0.0.1:${PORT:-3000}/api/health || exit 1
 
 CMD ["bun", "run", "start", "--", "-H", "0.0.0.0", "-p", "3000"]
+

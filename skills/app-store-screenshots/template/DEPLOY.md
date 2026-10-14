@@ -63,12 +63,13 @@ The application exposes a lightweight readiness check endpoint at `/api/health`:
 - **Expected Status**: `200 OK`
 - **Command**:
   ```sh
-  bun -e "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+  curl -f http://127.0.0.1:3000/api/health || exit 1
   ```
 - **Interval**: 30s
 - **Timeout**: 5s
 - **Retries**: 3
 - **Start Period**: 20s
+- **Note**: `curl` and `ca-certificates` are installed in the container runner image to support Coolify's automated HTTP health checks.
 
 ---
 
